@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>PeraPilot</title>
+<style>
+:root{--bg:#f3f8f5;--card:#fff;--ink:#143126;--muted:#6c7f76;--brand:#087f5b;--brand2:#0ca678;--line:#dbe8e1;--warn:#b54708;--bad:#b42318;--good:#087f5b;--shadow:0 8px 24px rgba(20,49,38,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{position:sticky;top:0;z-index:5;background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;padding:18px 18px 16px;border-radius:0 0 22px 22px;box-shadow:var(--shadow)}
+header h1{margin:0;font-size:24px}.sub{opacity:.9;font-size:13px;margin-top:4px}.wrap{padding:14px 14px 92px;max-width:720px;margin:auto}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}.metric b{font-size:21px;display:block;margin-top:4px}.metric span,.muted{font-size:12px;color:var(--muted)}h2{font-size:17px;margin:2px 0 12px}label{font-size:12px;color:var(--muted);display:block;margin:9px 0 5px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;background:#fbfdfc;color:var(--ink);font:inherit}button{border:0;border-radius:12px;padding:11px 14px;font-weight:700;background:var(--brand);color:#fff}button.alt{background:#e9f5ef;color:var(--brand)}button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#e9f5ef;color:var(--brand);font-size:11px;font-weight:700}.progress{height:9px;background:#e5ece8;border-radius:999px;overflow:hidden}.bar{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));width:0}.list{display:grid;gap:8px}.item{border:1px solid var(--line);border-radius:14px;padding:10px 11px;background:#fcfefd}.item .top{display:flex;justify-content:space-between;gap:8px;font-weight:700}.item small{color:var(--muted)}.advice{border-left:4px solid var(--brand);background:#f2fbf7;padding:11px;border-radius:12px;font-size:13px;line-height:1.45}.warn{border-left-color:var(--warn);background:#fff7ed}.bad{border-left-color:var(--bad);background:#fff1f0}.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 8px max(8px,env(safe-area-inset-bottom));z-index:10}.nav button{background:transparent;color:var(--muted);font-size:11px;padding:8px 2px}.nav button.active{color:var(--brand)}.view{display:none}.view.active{display:block}.tiny{font-size:11px;color:var(--muted)}.spacer{height:4px}.right{text-align:right}
+</style>
+</head>
+<body>
+<header><h1>PeraPilot</h1><div class="sub">Your private, on-device money coach</div></header>
+<div class="wrap">
+<section id="home" class="view active">
+  <div class="grid">
+    <div class="card metric"><span>Cash on hand</span><b id="mCash">₱0</b></div>
+    <div class="card metric"><span>Total debt</span><b id="mDebt">₱0</b></div>
+    <div class="card metric"><span>Emergency fund</span><b id="mEmergency">₱0</b></div>
+    <div class="card metric"><span>Goal savings</span><b id="mGoal">₱0</b></div>
+  </div>
+  <div class="card"><h2>Today’s guidance</h2><div id="homeAdvice" class="advice">Set up your numbers first, then PeraPilot will recommend where each peso should go.</div></div>
+  <div class="card"><h2>Debt progress</h2><div id="debtList" class="list"></div></div>
+  <div class="card"><h2>Savings goals</h2><div id="goalList" class="list"></div></div>
+</section>
+
+<section id="payday" class="view">
+  <div class="card"><h2>Payday Coach</h2>
+    <label>Magkano nakuha mong sahod?</label><input id="payIncome" type="number" inputmode="decimal" placeholder="0.00" />
+    <label>Extra income / allowance (optional)</label><input id="payExtra" type="number" inputmode="decimal" placeholder="0.00" />
+    <div class="spacer"></div><button onclick="planPayday()">Make my plan</button>
+  </div>
+  <div class="card"><h2>Recommended allocation</h2><div id="payPlan" class="list"><div class="muted">Enter your actual payday amount.</div></div></div>
+</section>
+
+<section id="spend" class="view">
+  <div class="card"><h2>Can I afford this?</h2>
+    <label>Item / expense</label><input id="spName" placeholder="e.g. Lazada parcel" />
+    <label>Amount</label><input id="spAmount" type="number" inputmode="decimal" />
+    <label>Type</label><select id="spType"><option value="optional">Optional / shopping</option><option value="essential">Essential</option><option value="emergency">Emergency</option></select>
+    <div class="spacer"></div><button onclick="checkSpend()">Check first</button>
+  </div>
+  <div id="spAdvice" class="card"><div class="advice">PeraPilot checks your cash, upcoming obligations, and safety buffer before recommending.</div></div>
+  <div class="card"><h2>Quick transaction</h2>
+    <div class="row"><input id="txDesc" placeholder="Description"><input id="txAmount" type="number" placeholder="Amount"></div>
+    <label>Type</label><select id="txType"><option value="expense">Expense</option><option value="income">Income</option><option value="debt">Debt payment</option><option value="emergency">Emergency savings</option><option value="goal">Goal savings</option></select>
+    <label>Debt / goal name (only if needed)</label><input id="txTarget" placeholder="Name exactly as configured" />
+    <div class="spacer"></div><button onclick="addTx()">Record</button>
+  </div>
+</section>
+
+<section id="setup" class="view">
+  <div class="card"><h2>Monthly essentials</h2>
+    <label>Internet</label><input id="sInternet" type="number">
+    <label>Gas / transport</label><input id="sGas" type="number">
+    <label>Food / personal</label><input id="sFood" type="number">
+    <label>Other required bills</label><input id="sOther" type="number">
+    <label>Target emergency fund</label><input id="sEmergencyTarget" type="number">
+    <label>Current emergency fund</label><input id="sEmergencyCurrent" type="number">
+    <button onclick="saveSetup()">Save essentials</button>
+  </div>
+  <div class="card"><h2>Add debt</h2>
+    <div class="row"><input id="dName" placeholder="Debt name"><input id="dBalance" type="number" placeholder="Balance"></div>
+    <div class="row"><input id="dMin" type="number" placeholder="Monthly minimum"><input id="dPriority" type="number" placeholder="Extra target"></div>
+    <button onclick="addDebt()">Add debt</button><div id="setupDebtList" class="list" style="margin-top:10px"></div>
+  </div>
+  <div class="card"><h2>Add savings goal</h2>
+    <div class="row"><input id="gName" placeholder="Goal name"><input id="gTarget" type="number" placeholder="Target"></div>
+    <input id="gCurrent" type="number" placeholder="Current saved">
+    <button onclick="addGoal()">Add goal</button><div id="setupGoalList" class="list" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<section id="data" class="view">
+  <div class="card"><h2>Backup / Restore</h2><p class="tiny">Your data stays in this app on this phone unless you copy a backup yourself.</p>
+    <button onclick="makeBackup()">Create backup text</button>
+    <textarea id="backupBox" rows="9" placeholder="Backup JSON appears here. Copy it somewhere safe."></textarea>
+    <button class="alt" onclick="restoreBackup()">Restore from text</button>
+  </div>
+  <div class="card"><h2>History</h2><div id="history" class="list"></div><button class="ghost" onclick="clearHistory()">Clear history only</button></div>
+</section>
+</div>
+<nav class="nav">
+<button class="active" onclick="showView('home',this)">Home</button><button onclick="showView('payday',this)">Payday</button><button onclick="showView('spend',this)">Spend</button><button onclick="showView('setup',this)">Setup</button><button onclick="showView('data',this)">Data</button>
+</nav>
+<script>
+const KEY='perapilot_v1';
+const defaultData={cash:0,essentials:{internet:0,gas:0,food:0,other:0},emergency:{current:0,target:0},debts:[],goals:[],history:[]};
+let db=load();
+function load(){try{return Object.assign({},defaultData,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return structuredClone(defaultData)}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+const peso=n=>'₱'+Number(n||0).toLocaleString('en-PH',{maximumFractionDigits:2,minimumFractionDigits:0});
+function showView(id,btn){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render()}
+function totalDebt(){return db.debts.reduce((s,d)=>s+Math.max(0,+d.balance||0),0)}
+function monthlyRequired(){return Object.values(db.essentials).reduce((s,x)=>s+(+x||0),0)+db.debts.reduce((s,d)=>s+(+d.min||0),0)}
+function render(){
+ document.getElementById('mCash').textContent=peso(db.cash);document.getElementById('mDebt').textContent=peso(totalDebt());document.getElementById('mEmergency').textContent=peso(db.emergency.current);document.getElementById('mGoal').textContent=peso(db.goals.reduce((s,g)=>s+(+g.current||0),0));
+ const debt=document.getElementById('debtList');debt.innerHTML=db.debts.length?'':'<div class="muted">No debts added.</div>';db.debts.forEach(d=>{let paid=Math.max(0,(+d.start||+d.balance)-(+d.balance));let base=+d.start||+d.balance||1;let pct=Math.min(100,Math.round(paid/base*100));debt.innerHTML+=`<div class="item"><div class="top"><span>${esc(d.name)}</span><span>${peso(d.balance)}</span></div><small>Minimum ${peso(d.min)}/mo · extra target ${peso(d.extra)}/mo</small><div class="progress"><div class="bar" style="width:${pct}%"></div></div></div>`});
+ const goals=document.getElementById('goalList');goals.innerHTML=db.goals.length?'':'<div class="muted">No savings goals yet.</div>';db.goals.forEach(g=>{let pct=Math.min(100,Math.round((+g.current||0)/Math.max(1,+g.target||1)*100));goals.innerHTML+=`<div class="item"><div class="top"><span>${esc(g.name)}</span><span>${peso(g.current)} / ${peso(g.target)}</span></div><div class="progress"><div class="bar" style="width:${pct}%"></div></div></div>`});
+ let safety=db.emergency.target>0?db.emergency.current/db.emergency.target:0;let adv='Add your monthly essentials, debts, and goals in Setup.';if(monthlyRequired()>0){adv=safety<.5?'Priority: protect your required bills and build your emergency fund before aggressive goal spending.':'You have a basic safety cushion. Keep required bills current, then accelerate highest-priority debt and goals.'}document.getElementById('homeAdvice').textContent=adv;
+ ['Internet','Gas','Food','Other'].forEach(k=>document.getElementById('s'+k).value=db.essentials[k.toLowerCase()]||'');document.getElementById('sEmergencyTarget').value=db.emergency.target||'';document.getElementById('sEmergencyCurrent').value=db.emergency.current||'';
+ const sdl=document.getElementById('setupDebtList');sdl.innerHTML='';db.debts.forEach((d,i)=>sdl.innerHTML+=`<div class="item"><div class="top"><span>${esc(d.name)}</span><button class="ghost" onclick="delDebt(${i})">Remove</button></div><small>${peso(d.balance)} balance</small></div>`);
+ const sgl=document.getElementById('setupGoalList');sgl.innerHTML='';db.goals.forEach((g,i)=>sgl.innerHTML+=`<div class="item"><div class="top"><span>${esc(g.name)}</span><button class="ghost" onclick="delGoal(${i})">Remove</button></div><small>${peso(g.current)} saved</small></div>`);
+ const hist=document.getElementById('history');hist.innerHTML=db.history.length?'':'<div class="muted">No transactions yet.</div>';[...db.history].reverse().slice(0,60).forEach(h=>hist.innerHTML+=`<div class="item"><div class="top"><span>${esc(h.desc)}</span><span>${h.type==='income'?'+':'-'}${peso(h.amount)}</span></div><small>${esc(h.type)} · ${new Date(h.date).toLocaleString()}</small></div>`);
+}
+function saveSetup(){db.essentials={internet:num('sInternet'),gas:num('sGas'),food:num('sFood'),other:num('sOther')};db.emergency.target=num('sEmergencyTarget');db.emergency.current=num('sEmergencyCurrent');save()}
+function addDebt(){let name=v('dName');let bal=num('dBalance');if(!name||bal<=0)return alert('Enter a debt name and balance.');db.debts.push({name,balance:bal,start:bal,min:num('dMin'),extra:num('dPriority')});save();['dName','dBalance','dMin','dPriority'].forEach(x=>document.getElementById(x).value='')}
+function addGoal(){let name=v('gName'),target=num('gTarget');if(!name||target<=0)return alert('Enter a goal name and target.');db.goals.push({name,target,current:num('gCurrent')});save();['gName','gTarget','gCurrent'].forEach(x=>document.getElementById(x).value='')}
+function delDebt(i){db.debts.splice(i,1);save()} function delGoal(i){db.goals.splice(i,1);save()}
+function planPayday(){let total=num('payIncome')+num('payExtra');if(total<=0)return;db.cash+=total;let rem=total,plan=[];let reqEss=Object.entries(db.essentials).filter(([k,x])=>+x>0);let payShare=.5;for(const [k,x] of reqEss){let a=Math.min(rem,(+x)*payShare);if(a>0){plan.push([cap(k),a]);rem-=a}}
+ for(const d of db.debts){let a=Math.min(rem,(+d.min||0)*payShare);if(a>0){plan.push([d.name+' minimum',a]);rem-=a}}
+ if(rem>0&&db.emergency.current<db.emergency.target){let a=Math.min(rem,Math.max(0,(db.emergency.target-db.emergency.current)*.10),Math.max(500,rem*.25));if(a>0){plan.push(['Emergency fund',a]);rem-=a}}
+ let targetDebt=db.debts.find(d=>(+d.balance||0)>0);if(rem>0&&targetDebt){let a=Math.min(rem,+targetDebt.extra||Math.max(500,rem*.5));if(a>0){plan.push([targetDebt.name+' extra',a]);rem-=a}}
+ if(rem>0&&db.goals.length){let g=db.goals[0];let a=Math.min(rem,Math.max(250,rem*.5));plan.push([g.name,a]);rem-=a}
+ if(rem>0)plan.push(['Flexible / keep in cash',rem]);document.getElementById('payPlan').innerHTML=plan.map(([n,a])=>`<div class="item"><div class="top"><span>${esc(n)}</span><span>${peso(a)}</span></div></div>`).join('')+`<div class="tiny">Plan is guidance only. Recording actual payments is still up to you.</div>`;save()}
+function checkSpend(){let name=v('spName')||'This expense',amount=num('spAmount'),type=v('spType');let cushion=Math.max(monthlyRequired()*.5,db.emergency.target>0?Math.min(3000,db.emergency.target*.1):1000);let after=db.cash-amount;let cls='advice',msg='';if(type==='emergency'){msg=`Emergency expense: prioritize safety. After paying ${peso(amount)}, estimated cash would be ${peso(after)}. Adjust debt/goal contributions if needed.`;cls='advice warn'}else if(type==='essential'){msg=after>=0?`Essential expense looks payable from current cash. You would have about ${peso(after)} left.`:`You are short by ${peso(Math.abs(after))}. Reduce optional spending and reschedule nonessential goals.`;cls=after>=0?'advice':'advice bad'}else{if(after<cushion){msg=`Wag muna if possible. This would leave about ${peso(after)}, below your suggested buffer of ${peso(cushion)}.`;cls='advice bad'}else{msg=`This looks manageable from your current cash. After purchase: about ${peso(after)}. Keep upcoming required bills reserved.`}}document.getElementById('spAdvice').innerHTML=`<div class="${cls}"><b>${esc(name)}</b><br>${msg}</div>`}
+function addTx(){let desc=v('txDesc')||'Transaction',a=num('txAmount'),t=v('txType'),target=v('txTarget');if(a<=0)return;if(t==='income')db.cash+=a;else db.cash-=a;if(t==='emergency')db.emergency.current+=a;if(t==='goal'){let g=db.goals.find(x=>x.name.toLowerCase()===target.toLowerCase());if(g)g.current+=a}if(t==='debt'){let d=db.debts.find(x=>x.name.toLowerCase()===target.toLowerCase());if(d)d.balance=Math.max(0,d.balance-a)}db.history.push({date:Date.now(),desc,amount:a,type:t,target});save();['txDesc','txAmount','txTarget'].forEach(x=>document.getElementById(x).value='')}
+function makeBackup(){document.getElementById('backupBox').value=JSON.stringify(db,null,2)}
+function restoreBackup(){try{let x=JSON.parse(document.getElementById('backupBox').value);db=Object.assign({},defaultData,x);save();alert('Backup restored.')}catch(e){alert('Invalid backup text.')}}
+function clearHistory(){if(confirm('Clear transaction history?')){db.history=[];save()}}
+function num(id){return +document.getElementById(id).value||0}function v(id){return document.getElementById(id).value.trim()}function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+render();
+</script>
+</body></html>
