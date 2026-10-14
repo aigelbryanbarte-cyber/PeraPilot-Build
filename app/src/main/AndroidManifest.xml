@@ -7,7 +7,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PeraPilot">
         <activity
-            android:name=".MainActivity"
+            android:name="com.perapilot.moneycoach.MainActivity"
             android:exported="true"
             android:screenOrientation="unspecified">
             <intent-filter>
