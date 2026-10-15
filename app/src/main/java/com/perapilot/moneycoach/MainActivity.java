@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
                     super.onPageFinished(view, url);
                     if (url != null && url.startsWith("file:///android_asset/index.html")) {
                         view.evaluateJavascript(
-                                "(function(){var s=document.createElement('script');s.src='fix25.js';s.onload=function(){console.log('PeraPilot 2.5 payday patch loaded')};document.head.appendChild(s);})()",
+                                "(function(){var s=document.createElement('script');s.src='fix25.js';s.onload=function(){console.log('PeraPilot 2.6 cutoff-plan patch loaded')};document.head.appendChild(s);})()",
                                 null
                         );
                     }
@@ -148,7 +148,7 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> {
                 pendingBackupJson = json;
                 pendingBackupName = (filename == null || filename.trim().isEmpty())
-                        ? "PeraPilot_V2_5_Backup.json" : filename;
+                        ? "PeraPilot_V2_6_Backup.json" : filename;
 
                 Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -165,7 +165,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String appVersion() {
-            return "2.5.0";
+            return "2.6.0";
         }
     }
 }
