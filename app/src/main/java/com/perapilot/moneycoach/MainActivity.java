@@ -52,17 +52,6 @@ public class MainActivity extends Activity {
             webView.addJavascriptInterface(new AndroidBridge(), "Android");
             webView.setWebViewClient(new WebViewClient() {
                 @Override
-                public void onPageFinished(WebView view, String url) {
-                    super.onPageFinished(view, url);
-                    if (url != null && url.startsWith("file:///android_asset/index.html")) {
-                        view.evaluateJavascript(
-                                "(function(){var s=document.createElement('script');s.src='fix23.js';s.onload=function(){console.log('PeraPilot 2.3 patch loaded')};document.head.appendChild(s);})()",
-                                null
-                        );
-                    }
-                }
-
-                @Override
                 public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                     super.onReceivedError(view, request, error);
                 }
@@ -148,7 +137,7 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> {
                 pendingBackupJson = json;
                 pendingBackupName = (filename == null || filename.trim().isEmpty())
-                        ? "PeraPilot_V2_3_Backup.json" : filename;
+                        ? "PeraPilot_V2_4_Backup.json" : filename;
 
                 Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -165,7 +154,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String appVersion() {
-            return "2.3.0";
+            return "2.4.0";
         }
     }
 }
